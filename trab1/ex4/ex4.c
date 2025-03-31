@@ -51,5 +51,7 @@ int main(int argc, char * argv[]){
     buff[read_count] = '\0';
     sscanf(buff, "%d", &word_count);
     printf("Word Count: %d\n", word_count);
+    close(pipefd[PIPE_RE]);
+    exit(EXIT_SUCCESS);
 
 }
