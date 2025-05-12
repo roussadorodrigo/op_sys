@@ -64,7 +64,7 @@ int tcp_server_socket_accept (int serverSocket){
         fatalErrorSystem("Erro no accept\n");
 
     printf("Ligação Estabelecida\n");
-    return 1;
+    return 0;
 }
 
 //--------------//
@@ -152,7 +152,7 @@ int un_server_socket_accept (int serverSocket){
     }
 
     printf ("Ligação estabelecida\n");
-    return 1;
+    return 0;
 }
 
 
