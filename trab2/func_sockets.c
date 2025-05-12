@@ -52,14 +52,13 @@ int tcp_server_socket_accept (int serverSocket){
 
     struct sockaddr_in client_addr;
     socklen_t dim_client = sizeof(client_addr);
+
     int newSock = accept(serverSocket, (struct sockaddr *)(&client_addr), &dim_client);
+
     if ( newSock < 0 )
-        fatalErrorSystem("Erro ao efectuar o accept\n");
+        fatalErrorSystem("Erro no accept\n");
         
     printf("Ligação Estabelecida\n");
-
-    return newSock;
-
 }
 
 //--------------//
@@ -136,7 +135,16 @@ int un_server_socket_init (const char *serverEndPoint){
 
 int un_server_socket_accept (int serverSocket){
 
+    struct sockaddr_un client_addr;
+    socklen_t dim_client = sizeof (client_addr);
 
+    int newSock = accept (serverSocket, (struct sockaddr *)(&client_addr), &dim_client);
+
+    if(newSock == -1){
+        fatalErrorSystem ("Erro no accept\n");
+    }
+
+    printf ("Ligação estabelecida\n");
 }
 
 
