@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -10,14 +11,22 @@
 #include <arpa/inet.h>
 
 #define MAX_BUFFER 1024
+#define LOG_PERMISSIONS 0664
+
+static int log_fd = -1; //descritor de ficheiro (inicialmente "fechado")
 
 int log_init(const char * pathname){
-    char * welcome_msg = "INÍCIO DO SERVER LOG:\n\n";
-    int log_fd = open(pathname, O_RDWR);
-    dup2(log_fd, STDOUT_FILENO);
+    const char * welcome_msg = "INÍCIO DO SERVER LOG:\n\n";
 
-    printf("%s\n\n", welcome_msg);
-    return log_fd;
+    log_fd = open(pathname, O_RDWR | O_CREAT | O_APPEND, LOG_PERMISSIONS);
+    if(log_fd == -1)
+        return 0;
+
+    if(write(log_fd, welcome_msg, strlen(welcome_msg)) == -1)
+        return 0;
+
+    return 1;
+    
 }
 
 
@@ -44,7 +53,10 @@ int log_message(LOG_LEVEL level, const char *msg){
     }
 
     sprintf(buffer,"[%s] %s - %s\n\n",level_str, asctime(localtime(&t)), msg);
-    printf("%s", buffer);
+    if(write(log_fd, buffer, strlen(buffer)) == -1)
+        return 0;
+
+    return 1;
 }
 
 
@@ -57,10 +69,13 @@ int log_message_width_end_point(LOG_LEVEL level, const char *msg, int sock){
     getsockname(sock, (struct sockaddr*)&socket, &sock_lenght);
 
     sprintf(buffer, "%s: IP = %d, Port = %d", msg, socket.sin_addr.s_addr, socket.sin_port);
-    log_message(level, buffer);
+    return(log_message(level, buffer));
 }
 
 
 int log_close(){
-    
+    if(close(log_fd) == -1)
+        return 0;
+
+    return 1;
 }
