@@ -10,6 +10,7 @@
 #include <sys/un.h>
 
 #include "erroraux.h"
+#include "func_sockets.h"
 
 //NADA TESTADO
 
