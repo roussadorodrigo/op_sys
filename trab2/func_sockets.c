@@ -75,7 +75,7 @@ int tcp_client_socket_init (const char *host, int port){
         fatalErrorSystem("Falha no connect");
     }
     
-    printf("Ligação estabelicida ao servidor TCP: %s; porta:%d\n", host, port);
+    printf("Ligação estabelecida ao servidor TCP: %s; porta:%d\n", host, port);
 
     return clientSocket;
   
