@@ -53,6 +53,6 @@ int main (int argc, char* argv[]){
         fatalErrorSystem ("O porto deve estar entre 1 e 65535!\n");
     }
 
-    
+    int tcp_client_socket_init (serverAddress, serverPort);    
 
 }
