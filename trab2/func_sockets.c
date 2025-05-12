@@ -101,14 +101,12 @@ int un_client_socket_init (const char *serverEndPoint){
     if ( (clientSocket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0 ) {
         fatalErrorSystem("Erro ao pedir o descritor");
     }
-  
 
-    // Preencher a estrutura serv_addr com o endereco do servidor que pretendemos contactar
+    
     struct sockaddr_un serv_addr;
     memset((char*)&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sun_family      = AF_UNIX;
-    strncpy(serv_addr.sun_path, serverEndPoint, sizeof(serv_addr.sun_path) - 1);
-     serv_addr.sun_path[sizeof(serv_addr.sun_path) - 1] = '\0'; // Garantir terminação
+    strcpy(serv_addr.sun_path, serverName);
     
     printf("O cliente vai ligar-se ao servidor no socket UNIX\n");
 
