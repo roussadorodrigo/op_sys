@@ -7,13 +7,14 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/un.h>
 
 #include "erroraux.h"
 
+//NADA TESTADO
 
 int tcp_server_socket_init (int serverPort){
 
-    ///não testado
     int  serverSocket;
     if ( (serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0 )
         fatalErrorSystem("Erro ao pedir o descritor");
@@ -81,15 +82,40 @@ int tcp_client_socket_init (const char *host, int port){
 
 int un_server_socket_init (const char *serverEndPoint){
 
-  
+    //FALTA
+
 }
 
 int un_server_socket_accept (int serverSocket){
 
-  
+    //FALTA
+
 }
 
 int un_client_socket_init (const char *serverEndPoint){
 
+    int clientSocket;
+    struct sockaddr_un serv_addr;
+
+    if ( (clientSocket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0 ) {
+        fatalErrorSystem("Erro ao pedir o descritor");
+    }
   
+
+    // Preencher a estrutura serv_addr com o endereco do servidor que pretendemos contactar
+    struct sockaddr_un serv_addr;
+    memset((char*)&serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sun_family      = AF_UNIX;
+    strncpy(serv_addr.sun_path, serverEndPoint, sizeof(serv_addr.sun_path) - 1);
+     serv_addr.sun_path[sizeof(serv_addr.sun_path) - 1] = '\0'; // Garantir terminação
+    
+    printf("O cliente vai ligar-se ao servidor no socket UNIX\n");
+
+
+    // Ligar-se ao servidor
+    if ( connect(clientSocket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0 ) {
+        fatalErrorSystem("Falha no connect");
+    }
+    
+    printf("Ligacao estabelecida...\n");
 }
