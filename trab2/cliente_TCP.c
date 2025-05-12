@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/un.h>
+#include <netdb.h>
 
 #include "erroraux.h"
 #include "func_sockets.h"
@@ -35,7 +36,23 @@ int main (int argc, char* argv[]){
 
 //Determinar o endereço IP 
 
-struct hostent *
+    struct hostent *pHost;
+    in_addr_t serverAddress;
 
+    if((pHost = gethostbyname(serverName)) != NULL){
+
+        memcpy(&serverAddress, pHost->h_addr_list[0], pHost->h_length);
+    }
+    else if ((serverAddress = inet_addr(serverName)) == -1){
+
+        fatalErrorSystem ("Não foi possível determinar o endereço IP");
+    }
+
+    if((serverPort < 1) || (serverPort > 65535)){
+
+        fatalErrorSystem ("O porto deve estar entre 1 e 65535!\n");
+    }
+
+    
 
 }
