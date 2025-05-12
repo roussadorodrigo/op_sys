@@ -1,4 +1,7 @@
 
+CC = gcc
+CFLAGS = -Wall -g
+
 
 
 ex4: cliente_TCP.c servidor.c erroaux.c func_sockets.c logger.c
