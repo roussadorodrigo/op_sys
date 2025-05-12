@@ -1,12 +1,8 @@
-CC = gcc
-CFLAGS = -Wall -g
 
-BINS = ex4
 
-all: $(BINS)
 
-ex4: ex4.o
-ex4.0: ex4.c
+ex4: cliente_TCP.c servidor.c erroaux.c func_sockets.c logger.c
+	gcc cliente_TCP.c servidor.c erroaux.c func_sockets.c logger.c -o ex4
 
 clean:
-	$(RM) $(BINS) *.o
+	rm -f ex4
