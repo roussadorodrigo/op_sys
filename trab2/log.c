@@ -39,6 +39,10 @@ int log_message(LOG_LEVEL level, const char *msg){
     return 0;
 }
 
+int log_message_width_end_point(LOG_LEVEL level, const char *msg, int sock){
+    
+}
+
 int log_close(){
     if(logfile == NULL) return -1;
     fclose(logfile);
