@@ -13,11 +13,15 @@
 
 //NADA TESTADO
 
+//--------------//
+//  TCP SERVER  //
+//--------------//
+
 int tcp_server_socket_init (int serverPort){
 
     int  serverSocket;
     if ( (serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0 ){
-        fatalErrorSystem("Erro ao criar socket");
+        fatalErrorSystem("Erro ao criar socket\n");
     }
     struct sockaddr_in serv_addr;
     memset((char*)&serv_addr, 0, sizeof(serv_addr));
@@ -27,13 +31,19 @@ int tcp_server_socket_init (int serverPort){
 
     //BIND
     if ( bind(serverSocket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0 )
-    fatalErrorSystem("Erro ao efectuar o bind");
+    fatalErrorSystem("Erro ao efectuar o bind\n");
 
 
     //LISTEN
-    if (listen( serverSocket, 5) < 0 )
-        fatalErrorSystem("Erro no listen");
-    
+    if (listen( serverSocket, 5) < 0 ){
+        fatalErrorSystem("Erro no listen\n");
+    }
+
+    for(int run = 1; run; ){
+
+        printf ("A espera de ligação\n");
+    }
+
     return serverSocket;
  
 }
@@ -44,15 +54,17 @@ int tcp_server_socket_accept (int serverSocket){
     socklen_t dim_client = sizeof(client_addr);
     int newSock = accept(serverSocket, (struct sockaddr *)(&client_addr), &dim_client);
     if ( newSock < 0 )
-        fatalErrorSystem("Erro ao efectuar o accept");
+        fatalErrorSystem("Erro ao efectuar o accept\n");
         
     printf("Ligação Estabelecida\n");
 
     return newSock;
 
-    
-  
 }
+
+//--------------//
+//  TCP CLIENT  //
+//--------------//
 
 int tcp_client_socket_init (const char *host, int port){
 
@@ -60,7 +72,7 @@ int tcp_client_socket_init (const char *host, int port){
     struct sockaddr_in serverAddr;
 
     if ( (clientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-        fatalErrorSystem("Erro ao pedir o descritor");
+        fatalErrorSystem("Erro ao pedir o descritor\n");
     }
 
     struct sockaddr_in serv_addr;
@@ -70,7 +82,7 @@ int tcp_client_socket_init (const char *host, int port){
     serv_addr.sin_port        = htons(port);
 
     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
-        fatalErrorSystem("Falha no connect");
+        fatalErrorSystem("Falha no connect\n");
     }
     
     printf("Ligação estabelicida ao servidor TCP: %s; porta:%d\n", host, port);
@@ -79,6 +91,10 @@ int tcp_client_socket_init (const char *host, int port){
   
 }
 
+//---------------//
+//  UNIX SERVER  //
+//---------------//
+
 int un_server_socket_init (const char *serverEndPoint){
 
 
@@ -86,7 +102,7 @@ int un_server_socket_init (const char *serverEndPoint){
     //Criação do socket
     if ((serverSocket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0){
 
-        fatalErrorSystem ("Erro ao Criar o Socket");
+        fatalErrorSystem ("Erro ao Criar o Socket\n");
 
     }
 
@@ -99,25 +115,34 @@ int un_server_socket_init (const char *serverEndPoint){
     //BIND
     if (bind(serverSocket,(struct sockaddr *)&serv_addr, sizeof (serv_addr)) == -1){
 
-        fatalErrorSystem ("Erro ao Fazer o bind");
+        fatalErrorSystem ("Erro ao Fazer o bind\n");
 
     }
 
     //LISTEN
     if (listen(serverSocket, 5) < 0){
 
-        fatalErrorSystem ("Erro no listen");
+        fatalErrorSystem ("Erro no listen\n");
     }
 
-    return serverEndPoint;
-    
+    for(int run = 1; run; ){
+
+        printf ("A espera de ligação\n");
+    }
+
+    return serverSocket;
+
 }
 
 int un_server_socket_accept (int serverSocket){
 
-    //FALTA
 
 }
+
+
+//---------------//
+//  UNIX CLIENT  //
+//---------------//
 
 int un_client_socket_init (const char *serverEndPoint){
 
@@ -125,7 +150,7 @@ int un_client_socket_init (const char *serverEndPoint){
     struct sockaddr_un serv_addr;
 
     if ( (clientSocket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0 ) {
-        fatalErrorSystem("Erro ao pedir o descritor");
+        fatalErrorSystem("Erro ao criar o socket");
     }
   
 
@@ -145,5 +170,6 @@ int un_client_socket_init (const char *serverEndPoint){
     //ex do stor
     printf("Ligacao estabelecida...\n");
 
+    return clientSocket;
 
 }
