@@ -26,7 +26,7 @@ void get_date_time(char *buffer, size_t size) {
 FILE* logfile = NULL;
 
 int log_init (const char *pathname){
-    logfile = fopen("logfile.txt", "a");        //cada vez que fazemos inti queremos adicionar linhas de log sem apagar nada anteriormente "logged"
+    logfile = fopen(pathname, "a");        //cada vez que fazemos inti queremos adicionar linhas de log sem apagar nada anteriormente "logged"
     if(logfile == NULL)return -1;
     return 0;
 }
