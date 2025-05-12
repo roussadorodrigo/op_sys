@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
+//NADA TESTADO
 
 char* level_to_str(LOG_LEVEL level){
     switch (level) {
