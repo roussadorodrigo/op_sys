@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-BINS = ex5
+BINS = ex4
 
 all: $(BINS)
 
-ex5: ex5.o
-ex5.0: ex5.c
+ex4: ex4.o
+ex4.0: ex4.c
 
 clean:
 	$(RM) $(BINS) *.o
