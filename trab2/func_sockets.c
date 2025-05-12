@@ -13,7 +13,7 @@
 
 int tcp_server_socket_init (int serverPort){
 
-    /// Não testado
+    ///não testado
     int  serverSocket;
     if ( (serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0 )
         fatalErrorSystem("Erro ao pedir o descritor");
@@ -29,7 +29,7 @@ int tcp_server_socket_init (int serverPort){
     fatalErrorSystem("Erro ao efectuar o bind");
 
 
-    // Ativar socket com fila de espera de dimensao 5
+    // Activar socket com fila de espera de dimensao 5
     if (listen( serverSocket, 5) < 0 )
         fatalErrorSystem("Erro no listen");
     
@@ -55,6 +55,27 @@ int tcp_server_socket_accept (int serverSocket){
 
 int tcp_client_socket_init (const char *host, int port){
 
+    int clientSocket;
+    struct sockaddr_in serverAddr;
+
+    if ( (clientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
+        fatalErrorSystem("Erro ao pedir o descritor");
+    }
+
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    if (inet_pton(AF_INET, host, &serverAddr.sin_addr) <= 0) { //converter os IP's para binário
+        fatalErrorSystem("Erro, endereço IP invalido");
+    }
+    serverAddr.sin_port = htons(port);
+
+    if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+        fatalErrorSystem("Falha no connect");
+    }
+    
+    printf("Ligação estabelicida ao servidor TCP: %s; porta:%d\n", host, port);
+
+    return clientSocket;
   
 }
 
