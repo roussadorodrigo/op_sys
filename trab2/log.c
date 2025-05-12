@@ -34,7 +34,7 @@ int log_init (const char *pathname){
 
 int log_message(LOG_LEVEL level, const char *msg){
     char date_time[20];                
-    get_date_time(date_time, sizeof(datetime));
+    get_date_time(date_time, sizeof(date_time));
     fprintf(logfile, "[%s] %s - %s\n", level_to_str(level), date_time, msg);
     return 0;
 }
