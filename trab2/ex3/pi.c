@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define MIN_VALUE 10000000000
-
 typedef struct arg_struct{
     int i;
     unsigned long long n_termos;
@@ -42,7 +40,7 @@ void * thread_function(void * arg_struct){
     ArgStruct *args = (ArgStruct *)arg_struct;
     unsigned long long start = (args->i * args->n_termos) + 1 ;
     unsigned long long end = (start + args->n_termos) - 1;
-    total += leibniz(start, end);
+    args->total_parcial += leibniz(start, end);
     return NULL;
 }
 
@@ -62,11 +60,6 @@ int main(int argc, char * argv[]){
     }
 
     unsigned long long n_termos = atoll(argv[1]);
-    if(n_termos < MIN_VALUE){
-        n_termos = MIN_VALUE;
-        printf("Número de termos é inferior ao mínimo! Alterado para este valor!\n");
-    }
-
     unsigned long long n_threads = atoll(argv[2]);
     pthread_t thread_ids[n_threads];
     
@@ -78,10 +71,11 @@ int main(int argc, char * argv[]){
     for(int i = 0; i < n_threads; i++){
         args[i].i = i;
         if(i == n_threads - 1)
-            args[i].i = resto;
+            args[i].n_termos = resto;
         else
             args[i].n_termos = n_termos_cada;
-
+		
+		args[i].total_parcial = 0;
         pthread_create(&thread_ids[i], NULL, thread_function, (void *)&args[i]);
 
     }
@@ -91,5 +85,5 @@ int main(int argc, char * argv[]){
         resultado+=args[i].total_parcial;
     }
 
-    printf("O valor aproximado de pi é: %lf\n", total);
+    printf("O valor aproximado de pi é: %lf\n", resultado);
 }
