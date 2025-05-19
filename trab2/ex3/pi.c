@@ -8,12 +8,10 @@
 
 #define MIN_VALUE 10000000000
 
-
-double total; //variável global com o resultado final
-
 typedef struct arg_struct{
     int i;
     unsigned long long n_termos;
+    double total_parcial;
 }ArgStruct;
 
 /*
@@ -56,6 +54,7 @@ ARGUMENTOS:
     argv[2] -> número de threads
 */
 int main(int argc, char * argv[]){
+    double resultado = 0;
 
     if(argc < 3){
         printf("Argumentos incorretos!\n");
@@ -89,6 +88,7 @@ int main(int argc, char * argv[]){
 
     for(int i = 0; i < n_threads; i++){
         pthread_join(thread_ids[i], NULL);
+        resultado+=args[i].total_parcial;
     }
 
     printf("O valor aproximado de pi é: %lf\n", total);
