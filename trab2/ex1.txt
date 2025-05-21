@@ -1,7 +1,8 @@
-Com base nos resultados obtidos, verificamo que os tempos de execução
+Com base nos resultados obtidos, verificamos que os tempos de execução
 convergem quando o buffer size aumenta. Isto deve-se ao facto de o programa
 copy.c usar syscalls, o que causa um maior tempo de execução pelo facto
 de existir um acesso "mais profundo" ao sistema operativo, isto é, trocas entre
 os modos kernel e utilizador, o que não acontece no programa fcopy.c, em que 
 são usadas funções da biblioteca C, o que (em termos de tempo) é muito menos
-dispendioso, visto, em termos de código, estas chamadas serem apenas "saltos".
+dispendioso, visto, em termos de código, estas chamadas serem apenas "saltos" para
+outras zonas do mesmo.
