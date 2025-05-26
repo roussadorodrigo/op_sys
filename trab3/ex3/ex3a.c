@@ -21,14 +21,15 @@ void norm_min_max_and_classify_parallel(int v[], size_t v_sz){
 
 //As N_THREADS colaboram entre si para descobrir o min e máx global
 
-
+int max = 50;
+int min = 10;
 
 
 //"transformar" o vetor em um de 0 a 100 e calcular a média
 int sum = 0;
 for(int i = 0; i < v_sz ; i++){
 
-    v[i] = (v[i] – min) * 100 / (max-min);
+    v[i] = ((v[i] - min) * 100) / (max-min);
     sum += v[i];
 
 }
@@ -39,10 +40,9 @@ for(int i = 0; i < v_sz ; i++){
 }
 
 
-
 int media = sum/v_sz;
 //DEBUG
-printf("media = \n%d\n", media);
+printf("\nmedia = %d\n", media);
 //atribuir o valor 1 se o valor for maior ou igual que a média e 0 caso contrário 
 for(int i = 0; i < v_sz ; i++){
 
@@ -66,7 +66,7 @@ int size = sizeof (v) / sizeof (int);
 
 norm_min_max_and_classify_parallel(v, size);
 //DEBUG
-printf ("size = %d\n", size);
+printf ("\nsize = %d\n", size);
 
 
 }
