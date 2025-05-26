@@ -7,10 +7,10 @@
 
 const int N_THREADS = 2;
 
-//void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
-void norm_min_max_and_classify_parallel(int v[], size_t v_sz){
-//Criar N_THREADS
+void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
+//void norm_min_max_and_classify_parallel(int v[], size_t v_sz){
 
+//Criar N_THREADS
 
 
 
@@ -33,6 +33,7 @@ for(int i = 0; i < v_sz ; i++){
     sum += v[i];
 
 }
+
 //DEBUG
 for(int i = 0; i < v_sz ; i++){
     printf("%d,",v[i]);
@@ -41,15 +42,18 @@ for(int i = 0; i < v_sz ; i++){
 
 
 int media = sum/v_sz;
+
 //DEBUG
 printf("\nmedia = %d\n", media);
+
 //atribuir o valor 1 se o valor for maior ou igual que a média e 0 caso contrário 
 for(int i = 0; i < v_sz ; i++){
 
-    if(v[i]>=media) v[i] = 1;
+    if(v[i] >= media) v[i] = 1;
     else v[i] = 0;
 
 }
+
 //DEBUG
 for(int i = 0; i < v_sz ; i++){
     printf("%d,",v[i]);
@@ -64,9 +68,7 @@ int v[] = {10,20,30,40,50};
 
 int size = sizeof (v) / sizeof (int);
 
-norm_min_max_and_classify_parallel(v, size);
 //DEBUG
 printf ("\nsize = %d\n", size);
-
 
 }
