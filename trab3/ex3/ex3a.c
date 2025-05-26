@@ -5,11 +5,10 @@
 #include <errno.h>
 #include <pthread.h>
 
-#define N_THREADS 2
+const int N_THREADS = 2;
 
 void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
-
-//Criar threads
+//Criar N_THREADS
 
 
 
@@ -24,12 +23,13 @@ void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
 
 
 
-
 //"transformar" o vetor em um de 0 a 100 e calcular a média
 
+for(int i = 0; i < v_sz ; i++){
 
+    v[i] = (v[i] – min) * 100 / (max-min);
 
-
+}
 //atribuir o valor 1 se o valor for maior ou igual que a média e 0 caso contrário 
 
 
@@ -46,6 +46,5 @@ int size = sizeof (v) / sizeof (int);
 //DEBUG
 printf ("size = %d\n", size);
 
-norm_min_max_and_classify_parallel(v,size,N_THREADS);
 
 }
