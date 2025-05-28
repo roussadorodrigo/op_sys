@@ -49,21 +49,35 @@ int transfer(account_t * account_array, int source_id, int dest_id, double value
     if(account_array[source_id].balance < value){
 
         #ifdef DEBUG
-            printf("Transferência sem sucesso de %d para %d de valor %lf", source_id, dest_id, value);
+            printf("Transferência sem sucesso de %d para %d de valor %lf\n", source_id, dest_id, value);
         #endif
 
         return 0;
     }
     
     //Início da zona de exclusão
-    pthread_mutex_lock(&account_array[source_id].mutex);
-    pthread_mutex_lock(&account_array[dest_id].mutex);
+    if(source_id > dest_id){
+        pthread_mutex_lock(&account_array[dest_id].mutex);
+        pthread_mutex_lock(&account_array[source_id].mutex);
 
-    account_array[source_id].balance -= value;
-    account_array[dest_id].balance += value;
+        account_array[source_id].balance -= value;
+        account_array[dest_id].balance += value;
 
-    pthread_mutex_unlock(&account_array[dest_id].mutex);
-    pthread_mutex_unlock(&account_array[source_id].mutex);
+        pthread_mutex_unlock(&account_array[source_id].mutex);
+        pthread_mutex_unlock(&account_array[dest_id].mutex);
+    }
+
+    else{
+        pthread_mutex_lock(&account_array[source_id].mutex);
+        pthread_mutex_lock(&account_array[dest_id].mutex);
+
+        account_array[source_id].balance -= value;
+        account_array[dest_id].balance += value;
+
+        pthread_mutex_unlock(&account_array[dest_id].mutex);
+        pthread_mutex_unlock(&account_array[source_id].mutex);
+    }
+
     //Fim da zona de exclusão
 
 
@@ -83,7 +97,7 @@ void * thread_function(void * arg){
     double value = -1;
 
     unsigned int seed = time(NULL) * pthread_self();
-    printf("%ud\n", seed);
+    printf("Seed da thread %ld: %ud\n", pthread_self(), seed);
 
     while(transfer_counter < NUM_TRANSFERS_PER_THREAD){
         dst = rand_r(&seed) % (ACCOUNTS_MAX);
