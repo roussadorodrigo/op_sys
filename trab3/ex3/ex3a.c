@@ -22,12 +22,17 @@ typedef struct{
     pthread_mutex_t * mutex;
     pthread_barrier_t * barrier;
 
+    int * somatorio;
+
+    size_t values_size;
+
 } thArg;
 
 void * thread_func(void * arg){
     thArg * args = (thArg *)arg;
     int local_min = args->values[args->lim_inf];
     int local_max = args->values[args->lim_sup];
+    int media;
 
     for(size_t i = args->lim_inf; i <= args->lim_sup; i++){
         if(args->values[i] < local_min)
@@ -55,6 +60,24 @@ void * thread_func(void * arg){
 
     pthread_barrier_wait(args->barrier);
 
+    //Fase 2 - Normalização do Vetor
+
+    for(size_t i = args->lim_inf; i <= args->lim_sup; i++){
+        args->values[i] = (args->values[i] - *args->global_min) * 100 / (*args->global_max - *args->global_min);
+
+        *args->somatorio += args->values[i];
+        #ifdef DEBUG
+        printf("%d adicionado ao somatório!\n", args->values[i]);
+        #endif
+    }
+
+    pthread_barrier_wait(args->barrier);
+    media = *args->somatorio/args->values_size;
+
+    #ifdef DEBUG
+    printf("Média calculada pela thread %d é %d\n", args->id, media);
+    #endif
+
 }
 
 void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
@@ -66,6 +89,8 @@ void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
 
     pthread_barrier_t barrier;
     pthread_barrier_init(&barrier, NULL, N_THREADS);
+
+    int somatorio = 0;
 
 
     int global_min = v[0];
@@ -91,6 +116,8 @@ void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
         arg[i].global_min = &global_min;
         arg[i].global_max = &global_max;
         arg[i].barrier = &barrier;
+        arg[i].somatorio = &somatorio;
+        arg[i].values_size = v_sz;
 
         if(i == N_THREADS - 1)
             arg[i].lim_sup += nTermosResto;
