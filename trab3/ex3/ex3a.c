@@ -1,117 +1,122 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <limits.h>
 
-#define MAX 10000000
-#define MIN 0
+#define N_THREADS 2
+#define GLOBAL_MIN_INIT_VALUE -1
+#define GLOBAL_MAX_INIT_VALUE -1
 
-typedef struct {
-    int *v;
-    size_t start;
-    size_t end;
-    int min_l;
-    int max_l;
-} ThreadData;
+#define DEBUG
 
-void *min_max_thread(void *nulo) {
+typedef struct{
+    int * values;
 
-//COnverter o void* para um ThreadData*
-    ThreadData *dados = (ThreadData *)nulo;
+    int id;
 
-    dados->min_l = MAX;
-    dados->max_l = MIN;
+    size_t lim_inf;
+    size_t lim_sup;
 
-    for (size_t i = dados->start; i < dados->end; i++) {
-        if (dados->v[i] < dados->min_l) dados->min_l = dados->v[i];
-        if (dados->v[i] > dados->max_l) dados->max_l = dados->v[i];
+    int * global_min;
+    int * global_max;
+
+    pthread_mutex_t * mutex;
+    pthread_barrier_t * barrier;
+
+} thArg;
+
+void * thread_func(void * arg){
+    thArg * args = (thArg *)arg;
+    int local_min = args->values[args->lim_inf];
+    int local_max = args->values[args->lim_sup];
+
+    for(size_t i = args->lim_inf; i <= args->lim_sup; i++){
+        if(args->values[i] < local_min)
+            local_min = args->values[i];
+
+        if(args->values[i] > local_max)
+            local_max = args->values[i];
     }
 
-    return NULL;
+    #ifdef DEBUG
+    printf("Thread %d, mínimo local = %d, máximo local = %d\n", args->id, local_min, local_max);
+    #endif
+
+    pthread_mutex_lock(args->mutex);
+    if(local_min < *(args->global_min))
+        *(args->global_min) = local_min;
+
+    if(local_max > *(args->global_max))
+        *(args->global_max) = local_max;
+    pthread_mutex_unlock(args->mutex);
+
+    #ifdef DEBUG
+    printf("Thread %d atualizou valores min e/ou max globais!\n", args->id);
+    #endif
+
+    pthread_barrier_wait(args->barrier);
+
 }
 
+void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
+    pthread_t threads[N_THREADS];
+    thArg arg[N_THREADS];
 
-void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads) {
-    pthread_t threads[nThreads];
-    ThreadData tdata[nThreads];
+    pthread_mutex_t mutex;
+    pthread_mutex_init(&mutex, NULL);
 
-//Dividir o trabalho pelas N_THREADS
-    size_t bloco = v_sz / nThreads;
-    size_t resto_bloco = v_sz % nThreads;
-    size_t inicio = 0;
-    for (int i = 0; i < nThreads; i++) {
-        size_t pedaco = bloco;
+    pthread_barrier_t barrier;
+    pthread_barrier_init(&barrier, NULL, N_THREADS);
 
-//Distribuir o resto pela primeira thread
-        if (resto_bloco > 0){
-            pedaco++;
-            resto_bloco--;
-        }
 
-        tdata[i].v = v;
-        tdata[i].start = inicio;
+    int global_min = v[0];
+    int global_max = v[0];
 
-        tdata[i].end = inicio + pedaco;
+    size_t nTermosThread = v_sz / N_THREADS;
+    size_t nTermosResto = v_sz % N_THREADS;
 
-//inicio da proxima thread
-        inicio = tdata[i].end;
-        
-//Criar N_THREADS
-        pthread_create(&threads[i], NULL, min_max_thread, &tdata[i]);
+    #ifdef DEBUG
+    printf("Termos por thread: %ld\nTermos resto: %ld\n", nTermosThread, nTermosResto);
+    #endif
+
+    for(int i = 0; i < N_THREADS; i++){
+        #ifdef DEBUG
+        printf("Inicialização dos args de %d\n", i);
+        #endif
+
+        arg[i].values = v;
+        arg[i].lim_inf = i*nTermosThread;
+        arg[i].lim_sup = (arg[i].lim_inf) + nTermosThread - 1;
+        arg[i].id = i;
+        arg[i].mutex = &mutex;
+        arg[i].global_min = &global_min;
+        arg[i].global_max = &global_max;
+        arg[i].barrier = &barrier;
+
+        if(i == N_THREADS - 1)
+            arg[i].lim_sup += nTermosResto;
+
+        #ifdef DEBUG
+        printf("Thread na posição %d, com limite inferior %ld e limite superior %ld\n", i, arg[i].lim_inf, arg[i].lim_sup);
+        #endif
     }
 
-    int min_g = MAX;
-    int max_g = MIN;
+    for(int i = 0; i < N_THREADS; i++){
+        pthread_create(&threads[i], NULL, thread_func, &arg[i]);
+    }
 
-//Ambas as threads "descobrem" qual o max e min global
-    for (int i = 0; i < nThreads; i++) {
-
+    for(int i = 0; i < N_THREADS; i++){
         pthread_join(threads[i], NULL);
-        if (tdata[i].min_l < min_g) min_g = tdata[i].min_l;
-        if (tdata[i].max_l > max_g) max_g = tdata[i].max_l;
     }
 
-//"transformar" o vetor em um de 0 a 100 e calcular a média
-    int sum = 0;
-    int media = 0;
-    for (size_t i = 0; i < v_sz; i++) {
+    #ifdef DEBUG
+    printf("Mínimo global: %d e máximo global: %d\n", global_min, global_max);
+    #endif
 
-        v[i] = (v[i] - min_g) * 100 / (max_g - min_g);
 
-        sum += v[i];
-        printf("%d ",v[i]);
-    }
-    printf("\n");
-
-    media = sum / v_sz;
-
-//atribuir o valor 1 se o valor for maior ou igual que a média e 0 caso contrário 
-    for (size_t i = 0; i < v_sz; i++) {
-
-        if(v[i] >= media) v[i] = 1;
-        else v[i] = 0;
-    }
+    //MUTEX AND BARRIER DESTROY AQUI! (fim do código)
 }
-int main() {
-    int v[] = {10, 20, 30, 40, 50, 60, 70, 80, 90};
-    size_t size = sizeof(v) / sizeof(int);
-    int nThreads = 2; //2 % size;
 
-    //PRINT DO ARRAY INICIAL
-    for (size_t i = 0; i < size; i++) {
-
-        printf("%d ", v[i]);
-    }
-    printf("\n");
-
-    norm_min_max_and_classify_parallel(v, size, nThreads);
-
-    //PRINT DO ARRAY NORMALIZADO
-    for (size_t i = 0; i < size; i++) {
-
-        printf("%d ", v[i]);
-    }
-    printf("\n");
-
-    return 0;
+int main(){
+    int v[] = {10, 20, 30, 40, 50};
+    norm_min_max_and_classify_parallel(v, 5, N_THREADS);
 }
