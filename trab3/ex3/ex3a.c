@@ -78,6 +78,15 @@ void * thread_func(void * arg){
     printf("Média calculada pela thread %d é %d\n", args->id, media);
     #endif
 
+    for(size_t i = args->lim_inf; i <= args->lim_sup; i++){
+        if(args->values[i] < media)
+            args->values[i] = 0;
+        else
+            args->values[i] = 1;
+    }
+
+    
+
 }
 
 void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
@@ -139,6 +148,12 @@ void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
     printf("Mínimo global: %d e máximo global: %d\n", global_min, global_max);
     #endif
 
+    #ifdef DEBUG
+    printf("Vetor values: ");
+    for(size_t i = 0; i < v_sz; i++)
+        printf("%d ",v[i]);
+    printf("\n");
+    #endif
 
     //MUTEX AND BARRIER DESTROY AQUI! (fim do código)
 }
