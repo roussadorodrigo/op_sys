@@ -1,3 +1,5 @@
+
+
 int sot_barrier_init(sot_barrier_t * barrier, int numberOfThreads){
 	
 	//INIT MUTEX
