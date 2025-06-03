@@ -65,7 +65,10 @@ void * thread_func(void * arg){
     for(size_t i = args->lim_inf; i <= args->lim_sup; i++){
         args->values[i] = (args->values[i] - *args->global_min) * 100 / (*args->global_max - *args->global_min);
 
+        pthread_mutex_lock(args->mutex);
         *args->somatorio += args->values[i];
+        pthread_mutex_unlock(args->mutex);
+        
         #ifdef DEBUG
         printf("%d adicionado ao somatório!\n", args->values[i]);
         #endif
