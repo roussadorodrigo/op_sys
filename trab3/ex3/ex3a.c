@@ -158,7 +158,12 @@ void norm_min_max_and_classify_parallel(int v[], size_t v_sz, int nThreads){
     printf("\n");
     #endif
 
-    //MUTEX AND BARRIER DESTROY AQUI! (fim do código)
+    pthread_mutex_destroy(&mutex);
+    pthread_barrier_destroy(&barrier);
+
+    #ifdef DEBUG
+    printf("Mutex e barrier destruídos!\n");
+    #endif
 }
 
 int main(){
@@ -166,5 +171,5 @@ int main(){
     norm_min_max_and_classify_parallel(v, 5, N_THREADS);
 
     int u[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-    norm_min_max_and_classify_parallel(u, 10, N_THREADS);   
+    norm_min_max_and_classify_parallel(u, 10, N_THREADS);    
 }
