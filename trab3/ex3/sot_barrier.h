@@ -3,7 +3,7 @@ typedef struct{
 	pthread_cond_t cond;
 	int max_threads; //N
 	int waiting_threads; //n
-    int ref;
+    	int ref;
 	
 }sot_barrier_t;
 
